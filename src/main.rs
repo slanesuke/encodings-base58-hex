@@ -1,18 +1,29 @@
 // A Base58 and Hexadecimal Encoder From Decimal for small integers
-// TODO: finish the decode function for base58 and hex!
-
-
+// I also added a base58 decoder to test
 use std::io::stdin;
+
 fn main() {
     println!("Enter an integer:");
     let mut input = String::new();
     stdin().read_line(&mut input).expect("Failed to read line");
     let number: u32 = input.trim().parse().expect("Failed to parse");
 
+    let hex = encode_hex(number);
+    let base58 = encode_base58(number);
+
+    println!("The Hex encoding function returns {}", hex);
+    println!("The Base58 encoding function returns: {} ", base58);
+
+    let decode_base58 = decode_base58(base58.as_str());
 
 
-    println!("The Hex encoding function returns {}", encode_hex(number));
-    println!("The Base58 encoding function returns: {} ", encode_base58(number));
+    println!("\n\nNow I'm testing decode Base58 fn.");
+    match decode_base58 {
+        Some(decode) => println!("Decoded Base58 value {}", decode),
+        None => println!("Invalid Base58 String"),
+    }
+
+
 }
 
 fn encode_hex(mut number: u32) -> String {
@@ -55,16 +66,18 @@ fn encode_base58(mut number: u32) -> String {
     result
 }
 
-fn decode_hex(hex_string: String) -> u32 {
-    let mut result = 0;
-    todo!();
 
-    result
-}
+fn decode_base58(base58: &str) -> Option<u64> {
+    const BASE68_ALPHABET: &str = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
-fn decode_base58(base58: String) -> u32 {
-    let mut result = 0;
-    todo!();
+    let mut result: u64 = 0;
 
-    result
+    for char in base58.chars() {
+        // Find the index of the character in the Base58 alphabet!
+        // if None is the base58 character is invalid and there will be an error.
+        let value = BASE68_ALPHABET.find(char)?;
+        result = result * 58 + value as u64;
+    }
+
+    Some(result)
 }
